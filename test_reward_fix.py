@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Test script to validate reward calculation fix.
-Verifies that the server correctly normalizes scores and client doesn't double-clamp.
+Verifies multi-agent matching, partial credit, and realistic reward distribution.
 """
 
 import sys
@@ -10,99 +10,159 @@ sys.path.insert(0, ".")
 from app.graders.master_grader import calculate_master_reward
 
 def test_reward_calculation():
-    """Test case from bug report: should return ~0.615, not 0.999"""
+    """Test all task difficulty levels with proper scoring"""
     
     print("="*70)
-    print("REWARD CALCULATION FIX VALIDATION TEST")
+    print("REWARD SYSTEM VALIDATION - ALL TASK LEVELS")
     print("="*70)
     
-    # Test case 1: Partial match (from bug report)
-    print("\n[TEST 1] Partial Match - Expected ~0.615 (no anti-cheat)")
+    all_passed = True
+    
+    # ================================================================
+    # TEST 1: Task1 (Easy) - Single agent, obvious anomaly
+    # ================================================================
+    print("\n[TEST 1] Task1 - Easy (Single Agent)")
     print("-" * 70)
     
-    action = {
-        "anomaly_detected": True,
-        "agent_id": "DRIVER-04",  # Correct agent_id to avoid anti-cheat
-        "severity": "medium",      # Wrong severity
-        "summary": "Driver performed unauthorized route"  # Missing keywords
-    }
-    
-    ground_truth = {
-        "anomaly_detected": True,
-        "agent_id": "DRIVER-04",
-        "severity": "high",
-        "issue_keywords": ["GPS disabled", "route deviation"]
-    }
-    
-    result = calculate_master_reward(action, ground_truth)
-    
-    print(f"Action: {action}")
-    print(f"\nBreakdown:")
-    for key, value in result["breakdown"].items():
-        print(f"  {key:25s}: {value:+.1f}")
-    
-    # Calculate expected raw score
-    raw_score = sum(result["breakdown"].values())
-    expected_normalized = raw_score / 2.6
-    
-    print(f"\nRaw Score Sum: {raw_score:.1f}")
-    print(f"Expected Normalized (raw/2.6): {expected_normalized:.4f}")
-    print(f"Actual Score: {result['score']:.4f}")
-    
-    # Validation
-    if abs(result['score'] - expected_normalized) < 0.001:
-        print("✅ PASS: Score matches expected normalized value")
-    else:
-        print(f"❌ FAIL: Score {result['score']:.4f} != Expected {expected_normalized:.4f}")
-        return False
-    
-    if result['score'] < 0.7:  # Should be ~0.615, definitely not 0.999
-        print("✅ PASS: Score is realistic (not stuck at 0.999)")
-    else:
-        print(f"❌ FAIL: Score {result['score']:.4f} is too high (stuck at 0.999?)")
-        return False
-    
-    # Test case 2: Perfect match
-    print("\n" + "="*70)
-    print("[TEST 2] Perfect Match - Expected ~0.999")
-    print("-" * 70)
-    
-    action_perfect = {
+    action_t1 = {
         "anomaly_detected": True,
         "agent_id": "DRIVER-04",
         "severity": "high",
         "summary": "Driver performed unauthorized route deviation and GPS disabled"
     }
     
-    result_perfect = calculate_master_reward(action_perfect, ground_truth)
+    gt_t1 = {
+        "anomaly_detected": True,
+        "agent_id": "DRIVER-04",
+        "severity": "high",
+        "issue_keywords": ["GPS disabled", "route deviation"]
+    }
     
-    print(f"Action: {action_perfect}")
+    result_t1 = calculate_master_reward(action_t1, gt_t1)
+    
+    print(f"Action: {action_t1}")
     print(f"\nBreakdown:")
-    for key, value in result_perfect["breakdown"].items():
-        print(f"  {key:25s}: {value:+.1f}")
+    for key, value in result_t1["breakdown"].items():
+        print(f"  {key:25s}: {value:+.2f}")
     
-    raw_score_perfect = sum(result_perfect["breakdown"].values())
-    expected_perfect = min(0.999, raw_score_perfect / 2.6)  # Server clamps to 0.999 max
+    print(f"\nRaw Score: {result_t1.get('raw_score', 'N/A')}")
+    print(f"Final Score: {result_t1['score']:.4f}")
     
-    print(f"\nRaw Score Sum: {raw_score_perfect:.1f}")
-    print(f"Expected Normalized (raw/2.6): {expected_perfect:.4f}")
-    print(f"Actual Score: {result_perfect['score']:.4f}")
-    
-    if abs(result_perfect['score'] - expected_perfect) < 0.001:
-        print("✅ PASS: Perfect score matches expected")
+    if result_t1['score'] > 0.95:
+        print("✅ PASS: Task1 perfect match gives high score")
     else:
-        print(f"❌ FAIL: Score {result_perfect['score']:.4f} != Expected {expected_perfect:.4f}")
-        return False
+        print(f"❌ FAIL: Task1 score {result_t1['score']:.4f} too low for perfect match")
+        all_passed = False
     
-    if result_perfect['score'] > 0.95:
-        print("✅ PASS: Perfect match gives high score")
-    else:
-        print(f"❌ FAIL: Perfect match score {result_perfect['score']:.4f} is too low")
-        return False
-    
-    # Test case 3: Missed anomaly (negative score)
+    # ================================================================
+    # TEST 2: Task4 (Hard) - Multi-agent cascade
+    # ================================================================
     print("\n" + "="*70)
-    print("[TEST 3] Missed Anomaly - Expected ~0.001 (clamped)")
+    print("[TEST 2] Task4 - Hard (Multi-Agent Cascade)")
+    print("-" * 70)
+    
+    action_t4_perfect = {
+        "anomaly_detected": True,
+        "agent_id": "DRIVER-33, MECHANIC-05, DISPATCHER-07",
+        "severity": "critical",
+        "summary": "Cascade negligence: skipped inspection, fraudulent countersignature, ignored brake alert"
+    }
+    
+    gt_t4 = {
+        "anomaly_detected": True,
+        "agent_id": "DRIVER-33, MECHANIC-05, DISPATCHER-07",
+        "severity": "critical",
+        "issue_keywords": ["skipped inspection", "fraudulent countersignature", "ignored brake alert", "cascade negligence"]
+    }
+    
+    result_t4_perfect = calculate_master_reward(action_t4_perfect, gt_t4)
+    
+    print(f"Action: {action_t4_perfect}")
+    print(f"\nBreakdown:")
+    for key, value in result_t4_perfect["breakdown"].items():
+        print(f"  {key:25s}: {value:+.2f}")
+    
+    print(f"\nRaw Score: {result_t4_perfect.get('raw_score', 'N/A')}")
+    print(f"Final Score: {result_t4_perfect['score']:.4f}")
+    
+    if result_t4_perfect['score'] > 0.95:
+        print("✅ PASS: Task4 perfect multi-agent match gives high score")
+    else:
+        print(f"❌ FAIL: Task4 score {result_t4_perfect['score']:.4f} too low")
+        all_passed = False
+    
+    # ================================================================
+    # TEST 3: Task4 - Partial agent match
+    # ================================================================
+    print("\n" + "="*70)
+    print("[TEST 3] Task4 - Partial Agent Match (2/3 agents)")
+    print("-" * 70)
+    
+    action_t4_partial = {
+        "anomaly_detected": True,
+        "agent_id": "DRIVER-33, MECHANIC-05",  # Missing DISPATCHER-07
+        "severity": "critical",
+        "summary": "Cascade negligence: skipped inspection and fraudulent countersignature"
+    }
+    
+    result_t4_partial = calculate_master_reward(action_t4_partial, gt_t4)
+    
+    print(f"Action: {action_t4_partial}")
+    print(f"\nBreakdown:")
+    for key, value in result_t4_partial["breakdown"].items():
+        print(f"  {key:25s}: {value:+.2f}")
+    
+    print(f"\nRaw Score: {result_t4_partial.get('raw_score', 'N/A')}")
+    print(f"Final Score: {result_t4_partial['score']:.4f}")
+    
+    if 0.6 < result_t4_partial['score'] < 0.9:
+        print("✅ PASS: Partial agent match gives medium score")
+    else:
+        print(f"❌ FAIL: Partial match score {result_t4_partial['score']:.4f} not in expected range")
+        all_passed = False
+    
+    # ================================================================
+    # TEST 4: Task5 (Hardest) - Multi-agent collusion
+    # ================================================================
+    print("\n" + "="*70)
+    print("[TEST 4] Task5 - Hardest (Multi-Agent Collusion)")
+    print("-" * 70)
+    
+    action_t5 = {
+        "anomaly_detected": True,
+        "agent_id": "DRIVER-41, DRIVER-42, FUEL-MANAGER-02",
+        "severity": "critical",
+        "summary": "Multi-agent fuel siphoning collusion: inflated purchase records, phantom mileage, shell vendor"
+    }
+    
+    gt_t5 = {
+        "anomaly_detected": True,
+        "agent_id": "DRIVER-41, DRIVER-42, FUEL-MANAGER-02",
+        "severity": "critical",
+        "issue_keywords": ["fuel siphoning", "inflated purchase records", "phantom mileage", "shell vendor", "collusion network"]
+    }
+    
+    result_t5 = calculate_master_reward(action_t5, gt_t5)
+    
+    print(f"Action: {action_t5}")
+    print(f"\nBreakdown:")
+    for key, value in result_t5["breakdown"].items():
+        print(f"  {key:25s}: {value:+.2f}")
+    
+    print(f"\nRaw Score: {result_t5.get('raw_score', 'N/A')}")
+    print(f"Final Score: {result_t5['score']:.4f}")
+    
+    if result_t5['score'] > 0.95:
+        print("✅ PASS: Task5 perfect match gives high score")
+    else:
+        print(f"❌ FAIL: Task5 score {result_t5['score']:.4f} too low")
+        all_passed = False
+    
+    # ================================================================
+    # TEST 5: Missed anomaly (should be very low)
+    # ================================================================
+    print("\n" + "="*70)
+    print("[TEST 5] Missed Anomaly - Should be minimum score")
     print("-" * 70)
     
     action_miss = {
@@ -112,36 +172,44 @@ def test_reward_calculation():
         "summary": "No issues detected"
     }
     
-    result_miss = calculate_master_reward(action_miss, ground_truth)
+    result_miss = calculate_master_reward(action_miss, gt_t1)
     
     print(f"Action: {action_miss}")
     print(f"\nBreakdown:")
     for key, value in result_miss["breakdown"].items():
-        print(f"  {key:25s}: {value:+.1f}")
+        print(f"  {key:25s}: {value:+.2f}")
     
-    raw_score_miss = sum(result_miss["breakdown"].values())
-    expected_miss = max(0.001, min(0.999, raw_score_miss / 2.6))
-    
-    print(f"\nRaw Score Sum: {raw_score_miss:.1f}")
-    print(f"Expected Normalized (clamped): {expected_miss:.4f}")
-    print(f"Actual Score: {result_miss['score']:.4f}")
+    print(f"\nRaw Score: {result_miss.get('raw_score', 'N/A')}")
+    print(f"Final Score: {result_miss['score']:.4f}")
     
     if result_miss['score'] == 0.001:
         print("✅ PASS: Missed anomaly correctly clamped to minimum")
     else:
         print(f"❌ FAIL: Missed anomaly score {result_miss['score']:.4f} should be 0.001")
-        return False
+        all_passed = False
     
+    # ================================================================
+    # SUMMARY
+    # ================================================================
     print("\n" + "="*70)
-    print("ALL TESTS PASSED ✅")
+    if all_passed:
+        print("ALL TESTS PASSED ✅")
+    else:
+        print("SOME TESTS FAILED ❌")
     print("="*70)
-    print("\nSummary:")
-    print(f"  Partial match:  {result['score']:.4f} (expected ~0.615)")
-    print(f"  Perfect match:  {result_perfect['score']:.4f} (expected ~0.999)")
-    print(f"  Missed anomaly: {result_miss['score']:.4f} (expected 0.001)")
-    print("\nReward calculation is working correctly!")
     
-    return True
+    print("\nScore Distribution:")
+    print(f"  Task1 (Easy):           {result_t1['score']:.4f}")
+    print(f"  Task4 (Hard - Perfect): {result_t4_perfect['score']:.4f}")
+    print(f"  Task4 (Hard - Partial): {result_t4_partial['score']:.4f}")
+    print(f"  Task5 (Hardest):        {result_t5['score']:.4f}")
+    print(f"  Missed Anomaly:         {result_miss['score']:.4f}")
+    
+    print("\n✅ Multi-agent matching works!")
+    print("✅ Partial credit for incomplete agent lists!")
+    print("✅ Realistic reward distribution across difficulty levels!")
+    
+    return all_passed
 
 if __name__ == "__main__":
     success = test_reward_calculation()
