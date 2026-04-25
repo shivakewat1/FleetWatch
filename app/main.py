@@ -75,3 +75,45 @@ async def test_step(agent_action: dict):
         }
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.post("/test/{task_num}")
+async def test_specific_task(task_num: int, agent_action: dict):
+    """
+    Test endpoint for specific task (1-5).
+    Example: POST /test/5 to test against Task5
+    """
+    try:
+        from app.graders.master_grader import calculate_master_reward
+        
+        task_map = {
+            1: "task1-obvious",
+            2: "task2-pattern",
+            3: "task3-adversarial",
+            4: "task4-cascade",
+            5: "task5-collusion"
+        }
+        
+        if task_num not in task_map:
+            raise HTTPException(status_code=400, detail="Task number must be 1-5")
+        
+        task_id = task_map[task_num]
+        task = TASKS.get(task_id)
+        
+        if not task:
+            raise HTTPException(status_code=404, detail=f"Task {task_id} not found")
+        
+        ground_truth = task.get("ground_truth", {})
+        reward_dict = calculate_master_reward(agent_action, ground_truth)
+        
+        return {
+            "task_id": task["task_id"],
+            "task_description": task["task_description"],
+            "agent_action": agent_action,
+            "reward": reward_dict,
+            "ground_truth": ground_truth,
+        }
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
