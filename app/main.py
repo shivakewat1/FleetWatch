@@ -1,8 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse
 
-from app.models import Action
-from app.env import FleetWatchEnv
+from app.env import FleetWatchEnv, TASKS
 
 app = FastAPI(title="FleetWatch", version="1.0.0")
 env = FleetWatchEnv()
@@ -25,9 +24,9 @@ async def reset():
 
 
 @app.post("/step")
-async def step(action: Action):
+async def step(agent_action: dict):
     try:
-        return env.step(action)
+        return env.step(agent_action)
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
 
@@ -42,4 +41,4 @@ async def state():
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "env": "fleetwatch"}
+    return {"status": "ok", "env": "fleetwatch", "tasks": list(TASKS.keys())}

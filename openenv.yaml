@@ -4,6 +4,22 @@ reward_range:
   - 1.0
 
 tasks:
-  - id: basic-test
-    description: A basic connectivity and response test for the FleetWatch environment.
+  - id: task1-obvious
+    description: Detect an obvious unauthorized route deviation by a single agent.
     difficulty: easy
+
+  - id: task2-pattern
+    description: Identify a recurring pattern of policy violations across multiple shifts.
+    difficulty: medium
+
+  - id: task3-adversarial
+    description: Uncover a deliberate cover-up of a safety incident by an agent.
+    difficulty: hard
+
+  - id: task4-cascade
+    description: Trace a cascade failure triggered by coordinated negligence across agents.
+    difficulty: expert
+
+  - id: task5-collusion
+    description: Expose covert collusion between multiple agents to defraud the fleet operator.
+    difficulty: master
