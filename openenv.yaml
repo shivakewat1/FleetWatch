@@ -1,0 +1,9 @@
+name: fleetwatch
+reward_range:
+  - 0.0
+  - 1.0
+
+tasks:
+  - id: basic-test
+    description: A basic connectivity and response test for the FleetWatch environment.
+    difficulty: easy
