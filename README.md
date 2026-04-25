@@ -1,10 +1,10 @@
 ---
-title: FleetWatch - AI Oversight Agent Training Environment
+title: Fleet-Watch
 emoji: 👁️
 colorFrom: blue
 colorTo: purple
 sdk: docker
-pinned: false
+app_port: 7860
 ---
 
 # 👁️ FleetWatch — AI Oversight Agent Training Environment
