@@ -16,9 +16,9 @@ TASK = {
     ],
     "ground_truth": {
         "anomaly_detected": True,
-        "agent": "DRIVER-04",
+        "agent_id": "DRIVER-04",
         "severity": "high",
-        "keywords": [
+        "issue_keywords": [
             "GPS disabled",
             "route deviation",
             "unexplained time gap",

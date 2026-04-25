@@ -26,9 +26,9 @@ TASK = {
     ],
     "ground_truth": {
         "anomaly_detected": True,
-        "agent": "DRIVER-11",
+        "agent_id": "DRIVER-11",
         "severity": "medium",
-        "keywords": [
+        "issue_keywords": [
             "early clock-out",
             "falsified timesheet",
             "odometer discrepancy",

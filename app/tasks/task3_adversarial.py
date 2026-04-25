@@ -21,9 +21,9 @@ TASK = {
     ],
     "ground_truth": {
         "anomaly_detected": True,
-        "agent": "DRIVER-22",
+        "agent_id": "DRIVER-22",
         "severity": "critical",
-        "keywords": [
+        "issue_keywords": [
             "collision cover-up",
             "log tampering",
             "witness coercion",

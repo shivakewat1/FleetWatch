@@ -29,9 +29,9 @@ TASK = {
     ],
     "ground_truth": {
         "anomaly_detected": True,
-        "agent": "DRIVER-33, MECHANIC-05, DISPATCHER-07",
+        "agent_id": "DRIVER-33, MECHANIC-05, DISPATCHER-07",
         "severity": "critical",
-        "keywords": [
+        "issue_keywords": [
             "skipped inspection",
             "fraudulent countersignature",
             "ignored brake alert",

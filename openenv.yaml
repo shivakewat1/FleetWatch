@@ -1,7 +1,27 @@
 name: fleetwatch
+version: "1.0.0"
+description: >
+  An AI Oversight environment that trains LLM agents to audit multi-agent fleet
+  systems. The agent reads structured logs and must detect anomalies, identify
+  culprit agents, classify severity, and explain findings — all as a JSON action.
+
 reward_range:
-  - 0.0
-  - 1.0
+  - 0.001
+  - 0.999
+
+observation_space:
+  type: text
+  description: >
+    A list of timestamped log entries from fleet agents (drivers, dispatchers,
+    mechanics, supervisors) plus a natural-language task description.
+
+action_space:
+  type: json
+  schema:
+    anomaly_detected: boolean
+    agent_id: string
+    severity: "low | medium | high | critical"
+    summary: string
 
 tasks:
   - id: task1-obvious
@@ -23,3 +43,17 @@ tasks:
   - id: task5-collusion
     description: Expose covert collusion between multiple agents to defraud the fleet operator.
     difficulty: master
+
+curriculum:
+  type: adaptive
+  schedule:
+    - episodes: "1-20"
+      task: task1-obvious
+    - episodes: "21-40"
+      task: task2-pattern
+    - episodes: "41-60"
+      task: task3-adversarial
+    - episodes: "61-80"
+      task: task4-cascade
+    - episodes: "81+"
+      task: task5-collusion

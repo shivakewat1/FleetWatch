@@ -36,9 +36,9 @@ TASK = {
     ],
     "ground_truth": {
         "anomaly_detected": True,
-        "agent": "DRIVER-41, DRIVER-42, FUEL-MANAGER-02",
+        "agent_id": "DRIVER-41, DRIVER-42, FUEL-MANAGER-02",
         "severity": "critical",
-        "keywords": [
+        "issue_keywords": [
             "fuel siphoning",
             "inflated purchase records",
             "phantom mileage",
