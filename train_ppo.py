@@ -266,6 +266,39 @@ def load_model_and_tokenizer():
 # 4.  POLICY GRADIENT CORE
 # ══════════════════════════════════════════════════════════════════════════════
 
+def _token_logprobs(model, input_ids: torch.Tensor) -> torch.Tensor:
+    """
+    Forward pass → per-token log-probs aligned to input_ids.
+    Returns tensor of shape [1, T] where position i = log P(token_i | tokens_<i).
+    Position 0 is always 0.0 (no previous context).
+    """
+    outputs = model(input_ids=input_ids, labels=None)
+    # logits: [1, T, V]  →  shift so logits[i] predicts token[i+1]
+    logits = outputs.logits[:, :-1, :].float()          # [1, T-1, V]
+    targets = input_ids[:, 1:]                           # [1, T-1]
+
+    lp = F.log_softmax(logits, dim=-1)
+    token_lp = lp.gather(2, targets.unsqueeze(-1)).squeeze(-1)  # [1, T-1]
+
+    # Pad a zero at position 0 so shape matches input_ids: [1, T]
+    pad = torch.zeros(1, 1, device=token_lp.device, dtype=token_lp.dtype)
+    token_lp = torch.cat([pad, token_lp], dim=1)        # [1, T]
+
+    del outputs, logits, lp
+    torch.cuda.empty_cache()
+    return token_lp
+
+
+@torch.no_grad()
+def get_ref_logprobs(
+    model,
+    input_ids: torch.Tensor,
+    response_mask: torch.Tensor,
+) -> torch.Tensor:
+    """Snapshot log-probs before the gradient update (no grad)."""
+    return _token_logprobs(model, input_ids).detach()
+
+
 def compute_pg_loss(
     model,
     ref_logprobs: torch.Tensor,
@@ -275,71 +308,20 @@ def compute_pg_loss(
     kl_beta: float,
 ) -> torch.Tensor:
     """
-    REINFORCE loss with KL penalty:
+    REINFORCE loss with KL penalty, masked to response tokens only:
 
-        L = -advantage * log π(a|s)  +  β * KL[π || π_ref]
-
-    where KL is approximated token-wise as:
-        KL ≈ π_ref_logprob - π_logprob   (k1 estimator, unbiased)
+        L = -advantage * mean(log π(token))  +  β * mean(KL[π_ref || π])
     """
-    # Only keep response tokens to minimise memory during backward
-    resp_start = (response_mask[0] == 1).nonzero(as_tuple=True)[0][0].item()
-    input_ids_resp = input_ids[:, resp_start - 1:]   # include one prompt token for context
+    token_lp = _token_logprobs(model, input_ids)        # [1, T]
 
-    outputs    = model(input_ids=input_ids_resp, labels=None)
-    logits     = outputs.logits[:, :-1, :]
-    target_ids = input_ids_resp[:, 1:]
-    mask       = response_mask[:, resp_start:][:, :target_ids.shape[1]]
-
-    log_probs = F.log_softmax(logits.float(), dim=-1)   # float32 for stability
-    token_logprobs = log_probs.gather(
-        2, target_ids.unsqueeze(-1)
-    ).squeeze(-1)
-
-    token_logprobs = token_logprobs * mask
-    ref_lp_slice   = ref_logprobs[:, resp_start:][:, :target_ids.shape[1]] * mask
-
+    # Apply response mask — only train on generated tokens, not the prompt
+    mask     = response_mask.float()                    # [1, T]
     n_tokens = mask.sum().clamp(min=1)
 
-    # Normalise by token count to make loss scale-invariant
-    pg_loss  = -advantage * (token_logprobs.sum() / n_tokens)
-    kl_loss  = kl_beta    * ((ref_lp_slice - token_logprobs).sum() / n_tokens)
-
-    # Free logits immediately — largest tensor in the graph
-    del outputs, logits, log_probs
-    torch.cuda.empty_cache()
+    pg_loss  = -advantage * (token_lp * mask).sum() / n_tokens
+    kl_loss  = kl_beta    * ((ref_logprobs - token_lp) * mask).sum() / n_tokens
 
     return pg_loss + kl_loss
-
-
-@torch.no_grad()
-def get_ref_logprobs(
-    model,
-    input_ids: torch.Tensor,
-    response_mask: torch.Tensor,
-) -> torch.Tensor:
-    """
-    Snapshot per-token log-probs before the update (no grad, response slice only).
-    """
-    resp_start = (response_mask[0] == 1).nonzero(as_tuple=True)[0][0].item()
-    input_ids_resp = input_ids[:, resp_start - 1:]
-
-    outputs    = model(input_ids=input_ids_resp, labels=None)
-    logits     = outputs.logits[:, :-1, :]
-    target_ids = input_ids_resp[:, 1:]
-    mask       = response_mask[:, resp_start:][:, :target_ids.shape[1]]
-
-    log_probs = F.log_softmax(logits.float(), dim=-1)
-    token_logprobs = log_probs.gather(
-        2, target_ids.unsqueeze(-1)
-    ).squeeze(-1)
-
-    result = (token_logprobs * mask).detach()
-
-    del outputs, logits, log_probs
-    torch.cuda.empty_cache()
-
-    return result
 
 
 # ══════════════════════════════════════════════════════════════════════════════
