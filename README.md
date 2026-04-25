@@ -1,3 +1,12 @@
+---
+title: FleetWatch - AI Oversight Agent Training Environment
+emoji: 👁️
+colorFrom: blue
+colorTo: purple
+sdk: docker
+pinned: false
+---
+
 # 👁️ FleetWatch — AI Oversight Agent Training Environment
 
 **Meta PyTorch OpenEnv Hackathon × Scaler 2026**
