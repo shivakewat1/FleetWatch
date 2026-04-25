@@ -24,7 +24,7 @@ HOW TO RUN:
 # Unsloth MUST be first
 from unsloth import FastLanguageModel
 
-import json, time, warnings, random
+import json, time, warnings, random, re
 import requests
 import numpy as np
 import matplotlib
@@ -50,7 +50,7 @@ OUTPUT_PLOT    = "training_curve.png"
 LEARNING_RATE  = 2e-5
 KL_BETA        = 0.05
 BASELINE_DECAY = 0.9
-MAX_SEQ_LEN    = 512
+MAX_SEQ_LEN    = 1024   # task2/task5 logs are long — 512 was truncating mid-log
 
 # ══════════════════════════════════════════════════════════════════════════════
 # 1.  ALL 5 TASKS — embedded client-side so every episode gets different logs
@@ -225,16 +225,36 @@ class FleetWatchEnvWrapper:
     @staticmethod
     def _parse_action(text: str) -> dict:
         text = text.strip()
+
+        # Stage 1 — direct parse
         try:
             return json.loads(text)
         except json.JSONDecodeError:
             pass
+
+        # Stage 2 — strip markdown fences then parse
+        cleaned = re.sub(r"```(?:json)?", "", text).strip().rstrip("`").strip()
+        try:
+            return json.loads(cleaned)
+        except json.JSONDecodeError:
+            pass
+
+        # Stage 3 — find LAST {...} block (model sometimes outputs prose then JSON)
+        matches = list(re.finditer(r'\{[^{}]*"anomaly_detected"[^{}]*\}', text, re.DOTALL))
+        if matches:
+            try:
+                return json.loads(matches[-1].group())
+            except json.JSONDecodeError:
+                pass
+
+        # Stage 4 — find any {...} block
         start, end = text.find("{"), text.rfind("}") + 1
         if start != -1 and end > start:
             try:
                 return json.loads(text[start:end])
             except json.JSONDecodeError:
                 pass
+
         print("  [PARSE] No valid JSON found. Using safe default.")
         return {"anomaly_detected": False, "agent_id": "", "severity": "low", "summary": "Unable to parse logs."}
 
