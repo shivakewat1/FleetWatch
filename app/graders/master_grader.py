@@ -3,30 +3,33 @@ import json
 
 def calculate_master_reward(agent_action: dict, ground_truth: dict) -> dict:
     """
-    Enhanced Multi-Dimensional Reward System for FleetWatch.
+    Ultra-Enhanced Multi-Dimensional Reward System for FleetWatch.
     
-    IMPROVEMENTS:
-    - Better partial credit for multi-agent scenarios
-    - Contextual reasoning bonus
-    - Evidence quality scoring
-    - Difficulty-adjusted rewards
-    - Smoother reward distribution
+    MAJOR IMPROVEMENTS:
+    - Task-specific reward scaling
+    - Better contextual understanding rewards
+    - Enhanced multi-agent detection
+    - Adversarial scenario bonuses
+    - Progressive difficulty rewards
+    - Evidence-based scoring
 
     Scoring breakdown:
-      +0.3   Valid JSON format (base score)
-      +1.2   Correct anomaly detection (increased from 1.0)
-      -0.6   False positive (detected anomaly when there is none)
-      -1.2   Missed anomaly (failed to detect a real anomaly)
-      +0.6   Agent ID match (fuzzy match for multi-agent cases, increased from 0.5)
-      +0.4   Severity match (case-insensitive, increased from 0.3)
-      +0.6   Explanation quality — summary contains issue keywords (increased from 0.5)
-      +0.3   Contextual reasoning bonus — shows understanding of relationships
-      -0.2   Anti-cheat: anomaly_detected=True but no agent_id provided (reduced from -0.3)
+      +0.4   Valid JSON format (base score, increased)
+      +1.5   Correct anomaly detection (increased for better learning signal)
+      -0.8   False positive (balanced penalty)
+      -1.5   Missed anomaly (strong penalty for missed fraud)
+      +0.8   Agent ID match (enhanced multi-agent support)
+      +0.5   Severity match (with graduated partial credit)
+      +0.8   Explanation quality (enhanced keyword matching)
+      +0.4   Contextual reasoning bonus (shows causal understanding)
+      +0.3   Evidence integration bonus (references specific log evidence)
+      +0.2   Task-specific bonus (rewards task complexity handling)
+      -0.2   Anti-cheat: anomaly_detected=True but no agent_id provided
 
-    Raw score is normalised against a max theoretical of 3.4 and clamped
+    Raw score is normalised against a max theoretical of 4.7 and clamped
     strictly to (0.001, 0.999).
     """
-    MAX_THEORETICAL = 3.4
+    MAX_THEORETICAL = 4.7
 
     # ------------------------------------------------------------------
     # Guard: non-dict input
@@ -43,14 +46,14 @@ def calculate_master_reward(agent_action: dict, ground_truth: dict) -> dict:
     feedback_parts: list[str] = []
 
     # ------------------------------------------------------------------
-    # 1. Base score — valid JSON format
+    # 1. Base score — valid JSON format (ENHANCED)
     # ------------------------------------------------------------------
-    breakdown["valid_json"] = 0.3
-    raw_score += 0.3
-    feedback_parts.append("Valid JSON format (+0.3).")
+    breakdown["valid_json"] = 0.4
+    raw_score += 0.4
+    feedback_parts.append("Valid JSON format (+0.4).")
 
     # ------------------------------------------------------------------
-    # 2. Anomaly detection
+    # 2. Anomaly detection (ENHANCED with stronger signals)
     # ------------------------------------------------------------------
     predicted = agent_action.get("anomaly_detected")
     expected  = ground_truth.get("anomaly_detected")
@@ -58,18 +61,18 @@ def calculate_master_reward(agent_action: dict, ground_truth: dict) -> dict:
     correctly_detected = False
 
     if predicted == expected:
-        breakdown["anomaly_detection"] = 1.2
-        raw_score += 1.2
+        breakdown["anomaly_detection"] = 1.5
+        raw_score += 1.5
         correctly_detected = True
-        feedback_parts.append("Correct anomaly detection (+1.2).")
+        feedback_parts.append("Correct anomaly detection (+1.5).")
     elif predicted is True and expected is False:
-        breakdown["anomaly_detection"] = -0.6
-        raw_score -= 0.6
-        feedback_parts.append("False positive: anomaly flagged when none exists (-0.6).")
+        breakdown["anomaly_detection"] = -0.8
+        raw_score -= 0.8
+        feedback_parts.append("False positive: anomaly flagged when none exists (-0.8).")
     elif predicted is False and expected is True:
-        breakdown["anomaly_detection"] = -1.2
-        raw_score -= 1.2
-        feedback_parts.append("Missed anomaly: failed to detect a real anomaly (-1.2).")
+        breakdown["anomaly_detection"] = -1.5
+        raw_score -= 1.5
+        feedback_parts.append("Missed anomaly: failed to detect a real anomaly (-1.5).")
     else:
         breakdown["anomaly_detection"] = 0.0
         feedback_parts.append("Anomaly detection result unclear (0.0).")
@@ -87,7 +90,7 @@ def calculate_master_reward(agent_action: dict, ground_truth: dict) -> dict:
         expected_agents = [a.strip() for a in expected_agent_id.split(",")]
         predicted_agents = [a.strip() for a in predicted_agent_id.split(",")]
         
-        # Calculate match score
+        # Calculate match score with enhanced multi-agent support
         if predicted_agent_id and expected_agent_id:
             # Check if any predicted agent matches any expected agent
             matches = sum(1 for pred in predicted_agents if any(pred == exp for exp in expected_agents))
@@ -95,12 +98,18 @@ def calculate_master_reward(agent_action: dict, ground_truth: dict) -> dict:
             
             if matches == total_expected and len(predicted_agents) == total_expected:
                 # Perfect match: all agents identified correctly
-                breakdown["agent_identification"] = 0.6
-                raw_score += 0.6
-                feedback_parts.append("All agents correctly identified (+0.6).")
+                breakdown["agent_identification"] = 0.8
+                raw_score += 0.8
+                feedback_parts.append("Perfect agent identification: all agents correct (+0.8).")
+            elif matches == total_expected:
+                # All expected agents found, but extra agents identified
+                partial_score = 0.6
+                breakdown["agent_identification"] = partial_score
+                raw_score += partial_score
+                feedback_parts.append(f"All expected agents found with extras (+{partial_score:.2f}).")
             elif matches > 0:
-                # Partial match: some agents correct (better partial credit)
-                partial_score = 0.6 * (matches / total_expected)
+                # Partial match: some agents correct (enhanced partial credit)
+                partial_score = 0.8 * (matches / total_expected)
                 breakdown["agent_identification"] = partial_score
                 raw_score += partial_score
                 feedback_parts.append(f"Partial agent match: {matches}/{total_expected} correct (+{partial_score:.2f}).")
@@ -141,7 +150,7 @@ def calculate_master_reward(agent_action: dict, ground_truth: dict) -> dict:
             breakdown["severity_accuracy"] = 0.0
             feedback_parts.append("Severity level missing (0.0).")
 
-        # 3c. Explanation quality — summary contains issue keywords (ENHANCED: better scoring)
+        # 3c. Enhanced explanation quality with evidence integration
         summary   = str(agent_action.get("summary", "")).lower()
         keywords  = [kw.lower() for kw in ground_truth.get("issue_keywords", [])]
         
@@ -150,51 +159,114 @@ def calculate_master_reward(agent_action: dict, ground_truth: dict) -> dict:
             keyword_matches = sum(1 for kw in keywords if kw in summary)
             keyword_ratio = keyword_matches / len(keywords)
             
-            if keyword_ratio >= 0.7:
-                # Most keywords present - excellent explanation
+            if keyword_ratio >= 0.8:
+                # Excellent keyword coverage
+                explanation_score = 0.8
+                breakdown["explanation_quality"] = explanation_score
+                raw_score += explanation_score
+                feedback_parts.append(f"Excellent explanation with {keyword_matches}/{len(keywords)} keywords (+{explanation_score:.2f}).")
+            elif keyword_ratio >= 0.6:
+                # Good keyword coverage
                 explanation_score = 0.6
                 breakdown["explanation_quality"] = explanation_score
                 raw_score += explanation_score
-                feedback_parts.append(f"Excellent summary with {keyword_matches}/{len(keywords)} keywords (+{explanation_score:.2f}).")
-            elif keyword_ratio >= 0.4:
-                # Some keywords present - good explanation
-                explanation_score = 0.6 * keyword_ratio
+                feedback_parts.append(f"Good explanation with {keyword_matches}/{len(keywords)} keywords (+{explanation_score:.2f}).")
+            elif keyword_ratio >= 0.3:
+                # Adequate keyword coverage
+                explanation_score = 0.4
                 breakdown["explanation_quality"] = explanation_score
                 raw_score += explanation_score
-                feedback_parts.append(f"Good summary with {keyword_matches}/{len(keywords)} keywords (+{explanation_score:.2f}).")
+                feedback_parts.append(f"Adequate explanation with {keyword_matches}/{len(keywords)} keywords (+{explanation_score:.2f}).")
             else:
                 breakdown["explanation_quality"] = 0.0
-                feedback_parts.append(f"Summary missing key keywords: {keyword_matches}/{len(keywords)} (0.0).")
+                feedback_parts.append(f"Insufficient keywords: {keyword_matches}/{len(keywords)} (0.0).")
         else:
             breakdown["explanation_quality"] = 0.0
         
-        # 3d. Contextual reasoning bonus (NEW)
-        # Reward for showing understanding of relationships and causality
+        # 3d. Enhanced contextual reasoning bonus
         reasoning_indicators = [
-            "because", "therefore", "caused", "led to", "resulted in",
-            "pattern", "consistent", "indicates", "suggests", "evidence",
-            "coordinated", "collusion", "together", "multiple"
+            "because", "therefore", "caused", "led to", "resulted in", "due to",
+            "pattern", "consistent", "indicates", "suggests", "evidence", "shows",
+            "coordinated", "collusion", "together", "multiple", "both", "collaboration",
+            "tampering", "manipulation", "cover-up", "deception", "fraudulent"
         ]
         reasoning_count = sum(1 for indicator in reasoning_indicators if indicator in summary)
-        if reasoning_count >= 2:
+        if reasoning_count >= 3:
+            breakdown["contextual_reasoning"] = 0.4
+            raw_score += 0.4
+            feedback_parts.append("Excellent contextual reasoning (+0.4).")
+        elif reasoning_count >= 2:
             breakdown["contextual_reasoning"] = 0.3
             raw_score += 0.3
-            feedback_parts.append("Shows contextual reasoning (+0.3).")
+            feedback_parts.append("Good contextual reasoning (+0.3).")
         elif reasoning_count == 1:
             breakdown["contextual_reasoning"] = 0.15
             raw_score += 0.15
             feedback_parts.append("Some contextual reasoning (+0.15).")
         else:
             breakdown["contextual_reasoning"] = 0.0
+        
+        # 3e. NEW: Evidence integration bonus
+        evidence_indicators = [
+            "system", "log", "timestamp", "g-force", "speed", "camera", "footage",
+            "inspection", "damage", "radio", "unauthorized", "alert", "warning",
+            "security", "audit", "trail", "coordination", "paint transfer"
+        ]
+        evidence_count = sum(1 for indicator in evidence_indicators if indicator in summary)
+        if evidence_count >= 3:
+            breakdown["evidence_integration"] = 0.3
+            raw_score += 0.3
+            feedback_parts.append("Strong evidence integration (+0.3).")
+        elif evidence_count >= 2:
+            breakdown["evidence_integration"] = 0.2
+            raw_score += 0.2
+            feedback_parts.append("Good evidence integration (+0.2).")
+        elif evidence_count == 1:
+            breakdown["evidence_integration"] = 0.1
+            raw_score += 0.1
+            feedback_parts.append("Some evidence integration (+0.1).")
+        else:
+            breakdown["evidence_integration"] = 0.0
+        
+        # 3f. NEW: Task-specific complexity bonus
+        task_id = ground_truth.get("task_id", "")
+        if "task3" in task_id or "adversarial" in task_id:
+            # Adversarial task bonus for handling deception
+            if any(word in summary for word in ["cover-up", "tampering", "deception", "false"]):
+                breakdown["task_complexity_bonus"] = 0.2
+                raw_score += 0.2
+                feedback_parts.append("Adversarial scenario handling bonus (+0.2).")
+            else:
+                breakdown["task_complexity_bonus"] = 0.0
+        elif "task4" in task_id or "cascade" in task_id:
+            # Cascade task bonus for multi-agent chain detection
+            if any(word in summary for word in ["cascade", "chain", "negligence", "multiple"]):
+                breakdown["task_complexity_bonus"] = 0.2
+                raw_score += 0.2
+                feedback_parts.append("Cascade scenario handling bonus (+0.2).")
+            else:
+                breakdown["task_complexity_bonus"] = 0.0
+        elif "task5" in task_id or "collusion" in task_id:
+            # Collusion task bonus for coordinated fraud detection
+            if any(word in summary for word in ["collusion", "coordinated", "shell", "vendor"]):
+                breakdown["task_complexity_bonus"] = 0.2
+                raw_score += 0.2
+                feedback_parts.append("Collusion scenario handling bonus (+0.2).")
+            else:
+                breakdown["task_complexity_bonus"] = 0.0
+        else:
+            breakdown["task_complexity_bonus"] = 0.0
 
     else:
         breakdown["agent_identification"] = 0.0
         breakdown["severity_accuracy"]    = 0.0
         breakdown["explanation_quality"]  = 0.0
         breakdown["contextual_reasoning"] = 0.0
+        breakdown["evidence_integration"] = 0.0
+        breakdown["task_complexity_bonus"] = 0.0
 
     # ------------------------------------------------------------------
-    # 4. Anti-cheat penalty (REDUCED: -0.2 instead of -0.3)
+    # 4. Anti-cheat penalty (BALANCED)
     #    Fires when anomaly_detected=True but no agent_id is provided.
     # ------------------------------------------------------------------
     if agent_action.get("anomaly_detected") is True and not str(agent_action.get("agent_id", "")).strip():
