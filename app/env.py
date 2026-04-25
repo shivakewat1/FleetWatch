@@ -31,7 +31,8 @@ class FleetWatchEnv:
     # Adaptive Curriculum
     # ------------------------------------------------------------------
     def get_task(self) -> dict:
-        ep = self.episode_count
+        # Use modulo so curriculum cycles: 1-20→t1, 21-40→t2 ... 81-100→t1 again
+        ep = ((self.episode_count - 1) % 100) + 1
         if ep <= 20:
             return t1
         elif ep <= 40:
@@ -51,9 +52,11 @@ class FleetWatchEnv:
         self._current_task = self.get_task()
 
         return {
+            "observation":      {"task_id": self._current_task["task_id"], "step_count": 0},
+            "episode":          self.episode_count,
             "task_id":          self._current_task["task_id"],
             "task_description": self._current_task["task_description"],
-            "agent_logs":       self._current_task["input_logs"],
+            "input_logs":       self._current_task["input_logs"],
             "step_count":       0,
         }
 
@@ -68,6 +71,8 @@ class FleetWatchEnv:
             "reward":     reward_dict,
             "done":       True,
             "step_count": 1,
+            "episode":    self.episode_count,
+            "task_id":    self._current_task.get("task_id", "unknown"),
         }
 
     # ------------------------------------------------------------------
