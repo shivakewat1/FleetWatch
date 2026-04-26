@@ -64,7 +64,11 @@ class FleetWatchEnv:
     # step
     # ------------------------------------------------------------------
     def step(self, action: dict) -> dict:
-        ground_truth = self._current_task.get("ground_truth", {})
+        # Merge task_id into ground_truth so the grader's task-specific bonuses fire
+        ground_truth = {
+            **self._current_task.get("ground_truth", {}),
+            "task_id": self._current_task.get("task_id", ""),
+        }
         reward_dict  = calculate_master_reward(action, ground_truth)
 
         return {

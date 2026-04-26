@@ -115,4 +115,5 @@
   },
   "best_reward": 0.5,
   "final_performance": 0.001,
-  "beat_baseline": 
+  "beat_baseline": false
+}

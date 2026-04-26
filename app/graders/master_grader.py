@@ -4,32 +4,28 @@ import json
 def calculate_master_reward(agent_action: dict, ground_truth: dict) -> dict:
     """
     Ultra-Enhanced Multi-Dimensional Reward System for FleetWatch.
-    
-    MAJOR IMPROVEMENTS:
-    - Task-specific reward scaling
-    - Better contextual understanding rewards
-    - Enhanced multi-agent detection
-    - Adversarial scenario bonuses
-    - Progressive difficulty rewards
-    - Evidence-based scoring
 
     Scoring breakdown:
-      +0.4   Valid JSON format (base score, increased)
-      +1.5   Correct anomaly detection (increased for better learning signal)
-      -0.8   False positive (balanced penalty)
+      +0.4   Valid JSON format (base score)
+      +1.5   Correct anomaly detection
+      -0.8   False positive
       -1.5   Missed anomaly (strong penalty for missed fraud)
-      +0.8   Agent ID match (enhanced multi-agent support)
-      +0.5   Severity match (with graduated partial credit)
-      +0.8   Explanation quality (enhanced keyword matching)
-      +0.4   Contextual reasoning bonus (shows causal understanding)
-      +0.3   Evidence integration bonus (references specific log evidence)
-      +0.2   Task-specific bonus (rewards task complexity handling)
+      +0.8   Agent ID match (multi-agent fuzzy support)
+      +0.4   Severity match (with graduated partial credit)
+      +0.8   Explanation quality (keyword matching)
+      +0.4   Contextual reasoning bonus
+      +0.3   Evidence integration bonus
+      +0.2   Task-specific complexity bonus (tasks 3/4/5 only)
       -0.2   Anti-cheat: anomaly_detected=True but no agent_id provided
 
-    Raw score is normalised against a max theoretical of 4.7 and clamped
-    strictly to (0.001, 0.999).
+    Raw score is normalised against a task-aware MAX_THEORETICAL:
+      - Tasks 1/2 (no complexity bonus): 4.5
+      - Tasks 3/4/5 (complexity bonus available): 4.7
+    Score is clamped strictly to (0.001, 0.999).
     """
-    MAX_THEORETICAL = 4.7
+    task_id = ground_truth.get("task_id", "")
+    has_complexity_bonus = any(t in task_id for t in ("task3", "task4", "task5", "adversarial", "cascade", "collusion"))
+    MAX_THEORETICAL = 4.7 if has_complexity_bonus else 4.5
 
     # ------------------------------------------------------------------
     # Guard: non-dict input

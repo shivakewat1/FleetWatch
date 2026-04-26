@@ -1,10 +1,5 @@
 from pydantic import BaseModel
-from typing import List, Optional
-
-
-class Observation(BaseModel):
-    task_id: str
-    step_count: int
+from typing import Optional
 
 
 class Action(BaseModel):
