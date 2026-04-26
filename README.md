@@ -1,6 +1,15 @@
+---
+title: Fleet-Watch
+emoji: 👁️
+colorFrom: blue
+colorTo: purple
+sdk: docker
+app_port: 7860
+---
 
-
-
+<p align="center">
+  <img src="./fleetwatch.png" alt="FleetWatch Banner" width="100%"/>
+</p>
 
 <h1 align="center">👁️ FleetWatch — AI Fleet Fraud Detection</h1>
 
@@ -37,10 +46,6 @@ FleetWatch is a reinforcement learning environment where LLM agents learn to aud
 
 ---
 
-<p align="center">
-  <img src="./fleetwatch.png" alt="FleetWatch Banner" width="100%"/>
-</p>
-
 ## Training Results
 
 Our model learns to detect fraud across all 5 tasks through reinforcement learning. Below is the complete before/after comparison showing training curves, per-task improvements, and reward distributions.
@@ -56,15 +61,6 @@ Our model learns to detect fraud across all 5 tasks through reinforcement learni
 | Task 3 | Adversarial cover-up | 0.25 | 0.78 | +212% |
 | Task 4 | 3-agent cascade failure | 0.25 | 0.78 | +212% |
 | Task 5 | Multi-agent fuel collusion | 0.25 | 0.72 | +188% |
-
----
-title: Fleet-Watch
-emoji: 👁️
-colorFrom: blue
-colorTo: purple
-sdk: docker
-app_port: 7860
----
 
 ---
 
@@ -201,11 +197,25 @@ fleetwatch/
 
 ## Stack
 
-- **Model**: Llama-3-8B-Instruct (4-bit quantized)
-- **Training**: Unsloth + REINFORCE + LoRA
-- **Serving**: FastAPI + Docker
-- **Hosting**: HuggingFace Spaces
+- **Model**: Llama-3-8B-Instruct (4-bit quantized via Unsloth)
+- **Training**: REINFORCE + LoRA (r=8) + Curriculum Learning
+- **Framework**: FastAPI + Docker + HuggingFace Spaces
+- **Optimization**: Memory-efficient training for T4 GPUs
 
 ---
 
-*"Who audits the auditors? FleetWatch does."*
+## Access Points
+
+| Resource | Link |
+|----------|------|
+| **Live Demo API** | [https://shiva0999-fleet-watch.hf.space](https://shiva0999-fleet-watch.hf.space) |
+| **HuggingFace Space** | [https://huggingface.co/spaces/shiva0999/Fleet-Watch](https://huggingface.co/spaces/shiva0999/Fleet-Watch) |
+| **Training Notebook** | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1ZYWRl3NI86Cz8VrrxGm3vOGrKxpqHKp1?usp=sharing) |
+| **Source Code** | [https://github.com/shivakewat1/FleetWatch](https://github.com/shivakewat1/FleetWatch) |
+
+---
+
+<p align="center">
+  <strong>FleetWatch</strong> · Meta PyTorch OpenEnv Hackathon × Scaler 2026<br/>
+  <em>"Who audits the auditors? FleetWatch does."</em>
+</p>
