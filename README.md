@@ -51,19 +51,8 @@ FleetWatch is a reinforcement learning environment where LLM agents learn to aud
 Our model learns to detect fraud across all 5 tasks through reinforcement learning. Below is the complete before/after comparison showing training curves, per-task improvements, and reward distributions.
 
 <p align="center">
-  <img src="./fleetwatch.png" alt="FleetWatch Banner" width="100%"/>
+  <img src="./results/before_after_analysis.png" alt="Before vs After Training Analysis" width="100%"/>
 </p>
-
-<!-- ---
-title: Fleet-Watch
-emoji: 👁️
-colorFrom: blue
-colorTo: purple
-sdk: docker
-app_port: 7860
---- -->
-
-
 
 | Task | Scenario | Before | After | Improvement |
 |------|----------|--------|-------|-------------|
@@ -197,20 +186,28 @@ fleetwatch/
 │   ├── __init__.py
 │   └── app.py                        # FastAPI REST Server
 │
-├── FleetWatch_Colab_Train.py         # Complete Training Pipeline
-├── train_ppo.py                      # Baseline PPO Training
-├── train_ppo_enhanced.py             # Enhanced PPO Training
-├── generate_plots.py                 # Visualization Generator
+├── scripts/                          # Training & Utilities
+│   ├── FleetWatch_Colab_Train.py     # Main Colab Training Script
+│   ├── train_ppo.py                  # Baseline PPO Training
+│   ├── train_ppo_enhanced.py         # Enhanced PPO Training
+│   ├── generate_plots.py             # Visualization Generator
+│   └── inference.py                  # Model Inference
+│
+├── results/                          # Training Results
+│   ├── before_after_analysis.png     # Training Comparison Plot
+│   ├── training_results.json         # Baseline Metrics
+│   └── enhanced_training_results.json # Enhanced Metrics
+│
+├── docs/                             # Documentation
+│   ├── blog.md                       # Project Blog Post
+│   ├── HACKATHON_SUBMISSION.md       # Submission Details
+│   └── IMPROVEMENTS.md               # Enhancement Log
 │
 ├── Dockerfile                        # Container Configuration
 ├── requirements.txt                  # Dependencies
 ├── openenv.yaml                      # OpenEnv Spec
-│
-├── training_results.json             # Baseline Metrics
-├── enhanced_training_results.json    # Enhanced Metrics
-├── before_after_analysis.png         # Training Comparison
-│
-└── README.md                         # Documentation
+├── fleetwatch.png                    # Project Banner
+└── README.md                         # Main Documentation
 ```
 
 ---

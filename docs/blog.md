@@ -1,6 +1,17 @@
+---
+title: Fleet-Watch
+emoji: 👁️
+colorFrom: blue
+colorTo: purple
+sdk: docker
+app_port: 7860
+---
 
+<p align="center">
+  <img src="./fleetwatch.png" alt="FleetWatch Banner" width="100%"/>
+</p>
 
-<h1 align="center">FleetWatch- AI Fleet Fraud Detection</h1>
+<h1 align="center">Who Audits the Auditors?</h1>
 
 <p align="center">
   <strong>Meta PyTorch OpenEnv Hackathon × Scaler 2026</strong><br/>
@@ -125,38 +136,54 @@ Each task requires deeper reasoning than the last.
 ### From blind spot to perfect score
 
 <p align="center">
-  <img src="./fleetwatch.png" alt="FleetWatch Banner" width="100%"/>
+  <img src="./before_after_analysis.png" alt="Before vs After Training Analysis" width="100%"/>
 </p>
 
-**Before training:**
+**Before training — Baseline (50 episodes):**
 ```
-"No clear issues detected in the log entries provided."
+Mean reward:      0.047  — near zero, model is guessing
+Best ever:        0.733  — a fluke, never repeated
+Episodes > 0.6:   4%     — almost no successful detections
 
-Reasoning: Surface-level pass. No agent modelling. No causal inference.
-Multi-agent awareness: 0%
+Per-task scores:
+  T1 GPS Tampering:       0.065
+  T2 Timesheet Fraud:     0.074
+  T3 Collision Cover-Up:  0.045
+  T4 Cascade Negligence:  0.009  ← model completely blind
+  T5 Fuel Collusion:      0.043
+
+Behaviour: Spikes randomly at episode 1, collapses to flatline.
+Zero multi-agent awareness. Zero causal reasoning.
 ```
 
-**After training:**
+**After training — Enhanced (75 episodes):**
 ```
-"3-agent coordination detected: DRIVER-33 skipped brake inspection,
-MECHANIC-05 provided false clearance, DISPATCHER-07 reclassified the
-incident. Evidence: timing anomaly between clearance and collision +
-contradictory post-incident report."
+Mean reward:      0.521  — 11× improvement
+Best ever:        0.800
+Episodes > 0.6:   44%   — 10× more consistent high-quality detections
 
-Multi-agent awareness: 100%
+Per-task scores:
+  T1 GPS Tampering:       0.528  (+0.463 delta)
+  T2 Timesheet Fraud:     0.550  (+0.476 delta)
+  T3 Collision Cover-Up:  0.587  (+0.543 delta)  ← hardest task, biggest gain
+  T4 Cascade Negligence:  0.563  (+0.553 delta)
+  T5 Fuel Collusion:      0.377  (+0.334 delta)
+
+Behaviour: Stable in 0.4–0.7 band throughout training.
+Evidence-based reasoning. Agent identification. Causal chains.
 ```
 
 ### Full results across all five tasks
 
-| Task | Scenario | Before | After | Improvement |
-|------|----------|--------|-------|-------------|
-| Task 1 | GPS route deviation | 0.25 | **0.63** | +152% |
-| Task 2 | Timesheet fraud pattern | 0.25 | **0.69** | +176% |
-| Task 3 | Adversarial cover-up | 0.25 | **0.78** | +212% |
-| Task 4 | 3-agent cascade failure | 0.25 | **0.78** | +212% |
-| Task 5 | Multi-agent fuel collusion | 0.25 | **0.72** | +188% |
+| Task | Scenario | Before | After | Delta |
+|------|----------|--------|-------|-------|
+| Task 1 | GPS Tampering | 0.065 | **0.528** | +0.463 |
+| Task 2 | Timesheet Fraud | 0.074 | **0.550** | +0.476 |
+| Task 3 | Collision Cover-Up | 0.045 | **0.587** | +0.543 |
+| Task 4 | Cascade Negligence | 0.009 | **0.563** | +0.553 |
+| Task 5 | Fuel Collusion | 0.043 | **0.377** | +0.334 |
 
-**Overall: 188% average improvement across all fraud types, trained on a free T4 GPU in ~30 minutes.**
+**Overall: mean reward 0.047 → 0.521 (11× improvement). Best reward 0.733 → 0.800. Consistent high-quality detections up from 4% to 44% of episodes.**
 
 ---
 
