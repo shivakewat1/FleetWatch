@@ -63,7 +63,10 @@ async def test_step(agent_action: Action):
         from app.tasks.task1_obvious import TASK as task1
         from app.graders.master_grader import calculate_master_reward
         
-        ground_truth = task1.get("ground_truth", {})
+        ground_truth = {
+            **task1.get("ground_truth", {}),
+            "task_id": task1["task_id"],
+        }
         reward_dict = calculate_master_reward(agent_action.dict(), ground_truth)
         
         return {
@@ -104,7 +107,10 @@ async def test_specific_task(task_num: int, agent_action: Action):
         if not task:
             raise HTTPException(status_code=404, detail=f"Task {task_id} not found")
         
-        ground_truth = task.get("ground_truth", {})
+        ground_truth = {
+            **task.get("ground_truth", {}),
+            "task_id": task["task_id"],
+        }
         reward_dict = calculate_master_reward(agent_action.dict(), ground_truth)
         
         return {
