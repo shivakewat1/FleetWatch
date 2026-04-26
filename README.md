@@ -19,11 +19,11 @@ app_port: 7860
 [![Live Demo](https://img.shields.io/badge/🚀-Live%20Demo-success)](https://shiva0999-fleet-watch.hf.space)
 [![Blog Story](https://img.shields.io/badge/📖-Blog%20Story-purple)](https://huggingface.co/spaces/shiva0999/Fleet-Watch/blob/main/blog.md)
 
-## 🏆 Breakthrough Achievement: 99,800% Improvement
+## 🏆 Breakthrough Achievement: Task 3 Mastery
 
 ![Training Results](./enhanced_training_plot.png)
 
-**Task 3 Mastery**: 0.001 → 0.9990 reward (**99,800% improvement**)  
+**Task 3 Breakthrough**: 0.001 → 0.999 reward (**999x improvement**)  
 **Multi-Agent Detection**: Perfect performance across coordination scenarios  
 **Self-Improvement**: 168+ keywords evolved automatically  
 **Production Ready**: Live deployment with 99.9% uptime
@@ -140,7 +140,7 @@ Progressive difficulty escalation based on episode count:
 |----------|--------------|------------|-----------|-----------------|
 | **Task 1** | GPS tampering | 0.50 | 0.630 | +26% |
 | **Task 2** | Pattern fraud | 0.40 | 0.687 | +72% |
-| **Task 3** | **Adversarial** | **0.001** | **0.9990** | **+99,800%** |
+| **Task 3** | **Adversarial** | **0.001** | **0.999** | **999x better** |
 | **Task 4** | 3-agent cascade | 0.30 | 0.779 | +160% |
 | **Task 5** | Multi-agent collusion | 0.25 | 0.639 | +156% |
 
@@ -233,7 +233,7 @@ curl -X POST https://shiva0999-fleet-watch.hf.space/test/3 \
 
 **Direct Link**: [Open in Google Colab](https://colab.research.google.com/github/shivakewat1/FleetWatch/blob/main/FleetWatch_Enhanced_Training.ipynb)
 
-- **Expected Results**: 99,800% Task 3 improvement in ~5 minutes
+- **Expected Results**: 999x Task 3 improvement in ~5 minutes
 - **GPU**: Tesla T4 (free tier compatible)
 - **Training Time**: ~2-3 hours for full 175 episodes
 
@@ -301,16 +301,6 @@ fleetwatch/
 | **Episodes** | 175 | Full curriculum coverage |
 | **Max tokens** | 128 | Sufficient for JSON |
 
----
-
-## 👤 Author
-
-**Shiva Kewat**  
-B.Tech CSE, A.K.S. University, Satna, M.P., India
-
-Built for **Meta PyTorch OpenEnv Hackathon × Scaler 2026**
-
----
 
 ## 🙏 Acknowledgments
 
