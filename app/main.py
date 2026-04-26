@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse
 
 from app.env import FleetWatchEnv, TASKS
+from app.models import Action
 
 app = FastAPI(title="FleetWatch", version="1.0.0")
 env = FleetWatchEnv()
@@ -24,7 +25,7 @@ async def reset():
 
 
 @app.post("/step")
-async def step(agent_action: dict):
+async def step(agent_action: Action):
     """
     Step endpoint - evaluates agent action against current task.
     If no task is active, automatically resets to task1.
@@ -34,7 +35,7 @@ async def step(agent_action: dict):
         if not env._current_task:
             env.reset()
         
-        return env.step(agent_action)
+        return env.step(agent_action.dict())
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
 
@@ -53,7 +54,7 @@ async def health():
 
 
 @app.post("/test")
-async def test_step(agent_action: dict):
+async def test_step(agent_action: Action):
     """
     Test endpoint - directly evaluates action against task1 without needing reset.
     Useful for quick testing in the Space UI.
@@ -63,13 +64,13 @@ async def test_step(agent_action: dict):
         from app.graders.master_grader import calculate_master_reward
         
         ground_truth = task1.get("ground_truth", {})
-        reward_dict = calculate_master_reward(agent_action, ground_truth)
+        reward_dict = calculate_master_reward(agent_action.dict(), ground_truth)
         
         return {
             "task_id": task1["task_id"],
             "task_description": task1["task_description"],
             "input_logs": task1["input_logs"],
-            "agent_action": agent_action,
+            "agent_action": agent_action.dict(),
             "reward": reward_dict,
             "ground_truth": ground_truth,
         }
@@ -78,7 +79,7 @@ async def test_step(agent_action: dict):
 
 
 @app.post("/test/{task_num}")
-async def test_specific_task(task_num: int, agent_action: dict):
+async def test_specific_task(task_num: int, agent_action: Action):
     """
     Test endpoint for specific task (1-5).
     Example: POST /test/5 to test against Task5
@@ -104,12 +105,12 @@ async def test_specific_task(task_num: int, agent_action: dict):
             raise HTTPException(status_code=404, detail=f"Task {task_id} not found")
         
         ground_truth = task.get("ground_truth", {})
-        reward_dict = calculate_master_reward(agent_action, ground_truth)
+        reward_dict = calculate_master_reward(agent_action.dict(), ground_truth)
         
         return {
             "task_id": task["task_id"],
             "task_description": task["task_description"],
-            "agent_action": agent_action,
+            "agent_action": agent_action.dict(),
             "reward": reward_dict,
             "ground_truth": ground_truth,
         }

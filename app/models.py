@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from typing import List, Optional
 
 
 class Observation(BaseModel):
@@ -7,10 +8,14 @@ class Observation(BaseModel):
 
 
 class Action(BaseModel):
+    anomaly_detected: bool
+    agent_id: str
+    severity: str
     summary: str
-    overall_risk: str
 
 
 class Reward(BaseModel):
     score: float
+    breakdown: dict
     feedback: str
+    raw_score: Optional[float] = None
