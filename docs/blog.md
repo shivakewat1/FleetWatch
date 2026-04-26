@@ -1,17 +1,4 @@
----
-title: Fleet-Watch
-emoji: 👁️
-colorFrom: blue
-colorTo: purple
-sdk: docker
-app_port: 7860
----
-
-<p align="center">
-  <img src="./fleetwatch.png" alt="FleetWatch Banner" width="100%"/>
-</p>
-
-<h1 align="center">Who Audits the Auditors?</h1>
+<h1 align="center">FleetWatch - AI Fleet Detector </h1>
 
 <p align="center">
   <strong>Meta PyTorch OpenEnv Hackathon × Scaler 2026</strong><br/>
@@ -136,7 +123,7 @@ Each task requires deeper reasoning than the last.
 ### From blind spot to perfect score
 
 <p align="center">
-  <img src="./before_after_analysis.png" alt="Before vs After Training Analysis" width="100%"/>
+  <img src="/fleetwatch/fleetwatch.png" alt="FleetWatch Banner" width="100%"/>
 </p>
 
 **Before training — Baseline (50 episodes):**
