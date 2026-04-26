@@ -1,6 +1,14 @@
+---
+title: Fleet-Watch
+emoji: 👁️
+colorFrom: blue
+colorTo: purple
+sdk: docker
+app_port: 7860
+---
 <div align="center">
 
-# 🚨 FleetWatch AI
+# FleetWatch AI
 
 ### AI-Powered Multi-Agent Fleet Fraud Detection System
 
