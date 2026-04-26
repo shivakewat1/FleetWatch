@@ -1,15 +1,4 @@
----
-title: Fleet-Watch
-emoji: 👁️
-colorFrom: blue
-colorTo: purple
-sdk: docker
-app_port: 7860
----
 
-<p align="center">
-  <img src="./fleetwatch.png" alt="FleetWatch Banner" width="100%"/>
-</p>
 
 <h1 align="center">👁️ FleetWatch — AI Fleet Fraud Detection</h1>
 
@@ -46,6 +35,10 @@ FleetWatch is a reinforcement learning environment where LLM agents learn to aud
 
 ---
 
+<p align="center">
+  <img src="./fleetwatch.png" alt="FleetWatch Banner" width="100%"/>
+</p>
+
 ## Training Results
 
 Our model learns to detect fraud across all 5 tasks through reinforcement learning. Below is the complete before/after comparison showing training curves, per-task improvements, and reward distributions.
@@ -53,6 +46,17 @@ Our model learns to detect fraud across all 5 tasks through reinforcement learni
 <p align="center">
   <img src="./before_after_analysis.png" alt="Before vs After Training Analysis" width="100%"/>
 </p>
+
+---
+title: Fleet-Watch
+emoji: 👁️
+colorFrom: blue
+colorTo: purple
+sdk: docker
+app_port: 7860
+---
+
+
 
 | Task | Scenario | Before | After | Improvement |
 |------|----------|--------|-------|-------------|
