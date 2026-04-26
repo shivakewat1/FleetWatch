@@ -160,66 +160,47 @@ The script includes memory optimizations for T4 GPUs and trains across all 5 tas
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 fleetwatch/
 │
-├── 🎯 app/                           # Core Application
-│   ├── env.py                        # RL Environment + Adaptive Curriculum
-│   ├── models.py                     # Pydantic Data Models & Schemas
-│   ├── main.py                       # Application Entry Point
+├── app/                              # Core Application
+│   ├── env.py                        # RL Environment & Curriculum
+│   ├── models.py                     # Pydantic Schemas
+│   ├── main.py                       # Entry Point
 │   │
-│   ├── 📊 graders/                   # Reward System
+│   ├── graders/
 │   │   ├── __init__.py
-│   │   └── master_grader.py          # 7-Signal Reward Function
+│   │   └── master_grader.py          # 7-Signal Reward System
 │   │
-│   └── 📝 tasks/                     # Task Definitions
+│   └── tasks/
 │       ├── __init__.py
-│       ├── task1_obvious.py          # Task 1: GPS Tampering
-│       ├── task2_pattern.py          # Task 2: Timesheet Fraud
-│       ├── task3_adversarial.py      # Task 3: Collision Cover-up
-│       ├── task4_cascade.py          # Task 4: Cascade Negligence
-│       └── task5_collusion.py        # Task 5: Fuel Collusion
+│       ├── task1_obvious.py          # GPS Tampering
+│       ├── task2_pattern.py          # Timesheet Fraud
+│       ├── task3_adversarial.py      # Collision Cover-up
+│       ├── task4_cascade.py          # Cascade Negligence
+│       └── task5_collusion.py        # Fuel Collusion
 │
-├── 🚀 server/                        # API Server
+├── server/
 │   ├── __init__.py
-│   └── app.py                        # FastAPI REST Endpoints
+│   └── app.py                        # FastAPI REST Server
 │
-├── 🧠 Training Scripts
-│   ├── FleetWatch_Colab_Train.py     # Complete Colab Training Pipeline
-│   ├── train_ppo.py                  # PPO Training (Baseline)
-│   ├── train_ppo_enhanced.py         # Enhanced PPO Training
-│   └── generate_plots.py             # Training Visualization
+├── FleetWatch_Colab_Train.py         # Complete Training Pipeline
+├── train_ppo.py                      # Baseline PPO Training
+├── train_ppo_enhanced.py             # Enhanced PPO Training
+├── generate_plots.py                 # Visualization Generator
 │
-├── 🐳 Deployment
-│   ├── Dockerfile                    # HuggingFace Spaces Container
-│   ├── requirements.txt              # Python Dependencies
-│   └── openenv.yaml                  # OpenEnv Configuration
+├── Dockerfile                        # Container Configuration
+├── requirements.txt                  # Dependencies
+├── openenv.yaml                      # OpenEnv Spec
 │
-├── 📊 Results & Analysis
-│   ├── training_results.json         # Baseline Training Metrics
-│   ├── enhanced_training_results.json # Enhanced Training Metrics
-│   ├── before_after_analysis.png     # Training Comparison Plot
-│   └── fleetwatch.png                # Project Banner
+├── training_results.json             # Baseline Metrics
+├── enhanced_training_results.json    # Enhanced Metrics
+├── before_after_analysis.png         # Training Comparison
 │
-└── 📚 Documentation
-    ├── README.md                     # Main Documentation
-    ├── HACKATHON_SUBMISSION.md       # Submission Details
-    ├── IMPROVEMENTS.md               # Enhancement Log
-    └── QUICK_START_ENHANCED.md       # Quick Start Guide
+└── README.md                         # Documentation
 ```
-
-### 🔑 Key Components
-
-| Component | Purpose | Technology |
-|-----------|---------|------------|
-| **Environment** | RL task orchestration, curriculum learning | Custom Gym-style API |
-| **Grader** | 7-signal reward calculation, anti-cheat | Rule-based + heuristics |
-| **Tasks** | 5 progressive fraud scenarios | Synthetic log generation |
-| **Server** | REST API for training/inference | FastAPI + Uvicorn |
-| **Training** | REINFORCE with LoRA fine-tuning | Unsloth + PyTorch |
-| **Deployment** | Dockerized API on HF Spaces | Docker + HF Spaces |
 
 ---
 
