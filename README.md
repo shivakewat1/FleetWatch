@@ -160,26 +160,66 @@ The script includes memory optimizations for T4 GPUs and trains across all 5 tas
 
 ---
 
-## Project Structure
+## 📁 Project Structure
 
 ```
 fleetwatch/
-├── app/
-│   ├── env.py                    # Environment + adaptive curriculum
-│   ├── models.py                 # Pydantic schemas
-│   ├── graders/
-│   │   └── master_grader.py      # 7-signal reward function
-│   └── tasks/
-│       ├── task1_obvious.py      # GPS tampering
-│       ├── task2_pattern.py      # Timesheet fraud
-│       ├── task3_adversarial.py  # Collision cover-up
-│       ├── task4_cascade.py      # Cascade negligence
-│       └── task5_collusion.py    # Fuel collusion
-├── server/app.py                 # FastAPI server
-├── FleetWatch_Colab_Train.py     # Colab training script
-├── Dockerfile                    # HF Spaces deployment
-└── requirements.txt
+│
+├── 🎯 app/                           # Core Application
+│   ├── env.py                        # RL Environment + Adaptive Curriculum
+│   ├── models.py                     # Pydantic Data Models & Schemas
+│   ├── main.py                       # Application Entry Point
+│   │
+│   ├── 📊 graders/                   # Reward System
+│   │   ├── __init__.py
+│   │   └── master_grader.py          # 7-Signal Reward Function
+│   │
+│   └── 📝 tasks/                     # Task Definitions
+│       ├── __init__.py
+│       ├── task1_obvious.py          # Task 1: GPS Tampering
+│       ├── task2_pattern.py          # Task 2: Timesheet Fraud
+│       ├── task3_adversarial.py      # Task 3: Collision Cover-up
+│       ├── task4_cascade.py          # Task 4: Cascade Negligence
+│       └── task5_collusion.py        # Task 5: Fuel Collusion
+│
+├── 🚀 server/                        # API Server
+│   ├── __init__.py
+│   └── app.py                        # FastAPI REST Endpoints
+│
+├── 🧠 Training Scripts
+│   ├── FleetWatch_Colab_Train.py     # Complete Colab Training Pipeline
+│   ├── train_ppo.py                  # PPO Training (Baseline)
+│   ├── train_ppo_enhanced.py         # Enhanced PPO Training
+│   └── generate_plots.py             # Training Visualization
+│
+├── 🐳 Deployment
+│   ├── Dockerfile                    # HuggingFace Spaces Container
+│   ├── requirements.txt              # Python Dependencies
+│   └── openenv.yaml                  # OpenEnv Configuration
+│
+├── 📊 Results & Analysis
+│   ├── training_results.json         # Baseline Training Metrics
+│   ├── enhanced_training_results.json # Enhanced Training Metrics
+│   ├── before_after_analysis.png     # Training Comparison Plot
+│   └── fleetwatch.png                # Project Banner
+│
+└── 📚 Documentation
+    ├── README.md                     # Main Documentation
+    ├── HACKATHON_SUBMISSION.md       # Submission Details
+    ├── IMPROVEMENTS.md               # Enhancement Log
+    └── QUICK_START_ENHANCED.md       # Quick Start Guide
 ```
+
+### 🔑 Key Components
+
+| Component | Purpose | Technology |
+|-----------|---------|------------|
+| **Environment** | RL task orchestration, curriculum learning | Custom Gym-style API |
+| **Grader** | 7-signal reward calculation, anti-cheat | Rule-based + heuristics |
+| **Tasks** | 5 progressive fraud scenarios | Synthetic log generation |
+| **Server** | REST API for training/inference | FastAPI + Uvicorn |
+| **Training** | REINFORCE with LoRA fine-tuning | Unsloth + PyTorch |
+| **Deployment** | Dockerized API on HF Spaces | Docker + HF Spaces |
 
 ---
 
