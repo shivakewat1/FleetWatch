@@ -17,6 +17,7 @@ app_port: 7860
 [![GitHub](https://img.shields.io/badge/GitHub-Repository-green)](https://github.com/shivakewat1/FleetWatch)
 [![OpenEnv](https://img.shields.io/badge/OpenEnv-Compliant-orange)](https://openenv.dev)
 [![Live Demo](https://img.shields.io/badge/🚀-Live%20Demo-success)](https://shiva0999-fleet-watch.hf.space)
+[![Blog Story](https://img.shields.io/badge/📖-Blog%20Story-purple)](https://huggingface.co/spaces/shiva0999/Fleet-Watch/blob/main/blog.md)
 
 ## 🏆 **HACKATHON BREAKTHROUGH: 99,800% IMPROVEMENT!**
 
