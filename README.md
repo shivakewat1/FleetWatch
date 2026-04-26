@@ -223,6 +223,7 @@ curl -X POST https://shiva0999-fleet-watch.hf.space/test/3 \
 | **Live API** | https://shiva0999-fleet-watch.hf.space | Real-time testing |
 | **HuggingFace Space** | https://huggingface.co/spaces/shiva0999/Fleet-Watch | Interactive demo |
 | **GitHub Repository** | https://github.com/shivakewat1/FleetWatch | Source code |
+| **Blog Story** | https://huggingface.co/spaces/shiva0999/Fleet-Watch/blob/main/blog.md | Hackathon narrative |
 | **Training Notebook** | [Google Colab](https://colab.research.google.com/github/shivakewat1/FleetWatch/blob/main/FleetWatch_Enhanced_Training.ipynb) | Reproduce results |
 
 ---
