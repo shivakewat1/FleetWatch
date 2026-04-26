@@ -1,4 +1,15 @@
+---
+title: Fleet-Watch
+emoji: 👁️
+colorFrom: blue
+colorTo: purple
+sdk: docker
+app_port: 7860
+---
 
+<p align="center">
+  <img src="./fleetwatch.png" alt="FleetWatch Banner" width="100%"/>
+</p>
 
 <h1 align="center">👁️ FleetWatch — AI Fleet Fraud Detection</h1>
 
